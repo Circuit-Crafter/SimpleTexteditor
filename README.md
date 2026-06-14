@@ -1,84 +1,84 @@
 # SimpleTexteditor
 
-Ein benutzerfreundlicher und leichtgewichtiger Text-Editor für schnelle und effiziente Textbearbeitung.
+A user-friendly and lightweight text editor for quick and efficient text editing.
 
-## 🌟 Features
+## Features
 
-- 📝 **Einfache Bedienung** - Intuitive Benutzeroberfläche für schnelle Textbearbeitung
-- ⚡ **Leichtgewichtig** - Minimale Ressourcennutzung für optimale Performance
-- 💾 **Dateimanagement** - Einfaches Öffnen, Speichern und Verwalten von Textdateien
-- 🎨 **Clean Design** - Modernes und minimalistisches Interface
-- ⌨️ **Tastatur-freundlich** - Unterstützung für häufig verwendete Tastenkombinationen
+- Simple Operation - Intuitive user interface for fast text editing
+- Lightweight - Minimal resource consumption for optimal performance
+- File Management - Easy opening, saving, and management of text files
+- Clean Design - Modern and minimalist interface
+- Keyboard Friendly - Support for commonly used keyboard shortcuts
 
-## 🚀 Installation
+## Installation
 
 ```bash
-# Repository klonen
+# Clone the repository
 git clone https://github.com/Circuit-Crafter/SimpleTexteditor.git
 
-# In das Verzeichnis wechseln
+# Change into the directory
 cd SimpleTexteditor
 
-# Projekt starten
-[Hier Startanweisungen einfügen]
+# Start the project
+[Insert startup instructions here]
 ```
 
-## 📖 Verwendung
+## Usage
 
-1. Öffne SimpleTexteditor
-2. Beginne Text zu schreiben oder öffne eine bestehende Datei
-3. Speichere deine Änderungen mit `Ctrl+S` (oder `Cmd+S` auf macOS)
-4. Beende die Anwendung mit dem X-Button
+1. Open SimpleTexteditor
+2. Start writing text or open an existing file
+3. Save your changes with Ctrl+S (or Cmd+S on macOS)
+4. Exit the application by clicking the X button
 
-### Tastenkombinationen
+### Keyboard Shortcuts
 
-| Aktion | Tastenkombination |
+| Action | Keyboard Shortcut |
 |--------|------------------|
-| Neue Datei | `Ctrl+N` |
-| Datei öffnen | `Ctrl+O` |
-| Speichern | `Ctrl+S` |
-| Beenden | `Ctrl+Q` |
-| Alles markieren | `Ctrl+A` |
-| Rückgängig | `Ctrl+Z` |
-| Wiederherstellen | `Ctrl+Y` |
+| New File | Ctrl+N |
+| Open File | Ctrl+O |
+| Save | Ctrl+S |
+| Quit | Ctrl+Q |
+| Select All | Ctrl+A |
+| Undo | Ctrl+Z |
+| Redo | Ctrl+Y |
 
-## 🛠️ Technologie
+## Technology
 
-- **Sprache**: [Programmiersprache einfügen]
-- **Framework**: [Framework einfügen]
-- **Lizenz**: [Lizenz einfügen]
+- Language: [Insert programming language]
+- Framework: [Insert framework]
+- License: [Insert license]
 
-## 📋 Anforderungen
+## Requirements
 
-- [Systemanforderungen einfügen]
-- [Abhängigkeiten einfügen]
+- [Insert system requirements]
+- [Insert dependencies]
 
-## 🤝 Beitragen
+## Contributing
 
-Beiträge sind willkommen! Bitte folge diesen Schritten:
+Contributions are welcome! Please follow these steps:
 
-1. Fork das Repository
-2. Erstelle einen Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Committe deine Änderungen (`git commit -m 'Add some AmazingFeature'`)
-4. Push zum Branch (`git push origin feature/AmazingFeature`)
-5. Öffne einen Pull Request
+1. Fork the repository
+2. Create a feature branch (git checkout -b feature/AmazingFeature)
+3. Commit your changes (git commit -m 'Add some AmazingFeature')
+4. Push to the branch (git push origin feature/AmazingFeature)
+5. Open a Pull Request
 
-## 📝 Lizenz
+## License
 
-Dieses Projekt ist unter der [Lizenz einfügen] lizenziert - siehe [LICENSE](LICENSE) Datei für Details.
+This project is licensed under the [Insert license] - see the LICENSE file for details.
 
-## 👤 Autor
+## Author
 
-**Circuit-Crafter**
+Circuit-Crafter
 
 - GitHub: [@Circuit-Crafter](https://github.com/Circuit-Crafter)
 
-## 📞 Support
+## Support
 
-Hast du Fragen oder Probleme gefunden? 
-- Erstelle ein [Issue](https://github.com/Circuit-Crafter/SimpleTexteditor/issues)
-- Kontaktiere den Autor
+Have questions or found an issue?
+- Create an [Issue](https://github.com/Circuit-Crafter/SimpleTexteditor/issues)
+- Contact the author
 
 ---
 
-**Zuletzt aktualisiert**: Juni 2026
+Last updated: June 2026
