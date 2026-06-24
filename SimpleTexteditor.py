@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-# Version: 1.2
-# Last Updated: 2026-06-14
+# Version: 1.3
+# Last Updated: 2026-06-24
 """Very simple text editor with Tkinter and Dark Mode."""
 
 import tkinter as tk
@@ -9,18 +9,20 @@ from PIL import Image, ImageTk
 import sys
 import os
 import subprocess
+import shutil
+import tkinter.font as tkfont
 
 class SimpleTextEditor:
     def __init__(self, root):
         self.root = root
-        
 
+        self.search_window = None
         self.dark_mode = True
         
         # Dark Mode Colors
         self.root_bg_dark = "#1e1e1e"
         self.text_bg_dark = "#212121"
-        self.text_fg_dark = "#e0e0e0"
+        self.text_fg_dark = "#f1f1f1"
         self.menu_bg_dark = "#242424"
         self.menu_fg_dark = "#e0e0e0"
         # Light Mode Colors
@@ -29,6 +31,16 @@ class SimpleTextEditor:
         self.text_fg_light = "#1e1e1e"
         self.menu_bg_light = "#f0f0f0"
         self.menu_fg_light = "#1e1e1e"
+        
+        # Scrollbar Colors (Dark Mode)
+        self.scrollbar_bg_dark = "#2a2a2a"
+        self.scrollbar_trough_dark = "#1e1e1e"
+        self.scrollbar_active_dark = "#444444"
+        
+        # Scrollbar Colors (Light Mode)
+        self.scrollbar_bg_light = "#d0d0d0"
+        self.scrollbar_trough_light = "#f5f5f5"
+        self.scrollbar_active_light = "#b0b0b0"
 
         # Colors
         self.root_bg_color =  self.root_bg_dark
@@ -36,6 +48,9 @@ class SimpleTextEditor:
         self.text_fg_color = self.text_fg_dark
         self.menu_bg_color = self.menu_bg_dark
         self.menu_fg_color = self.menu_fg_dark
+        self.scrollbar_bg_color = self.scrollbar_bg_dark
+        self.scrollbar_trough_color = self.scrollbar_trough_dark
+        self.scrollbar_active_color = self.scrollbar_active_dark
 
         # Icon
         icon_path = self._get_icon_path()
@@ -49,13 +64,36 @@ class SimpleTextEditor:
             pass
         
         self.root.title("Simple Text Editor")
-        self.root.geometry("900x700")
+        self.root.geometry("900x550")
         self.root.config(bg=self.root_bg_color)
         
         self.filename = None
         
-        self.text = tk.Text(
+        self.editor_frame = tk.Frame(
             self.root,
+            bg=self.root_bg_color
+        )
+
+        self.editor_frame.pack(
+            fill=tk.BOTH,
+            expand=True,
+            padx=5,
+            pady=5
+        )
+        self.scrollbar = tk.Scrollbar(
+            self.editor_frame,
+            orient=tk.VERTICAL,
+            bg=self.scrollbar_bg_color,
+            troughcolor=self.scrollbar_trough_color,
+            activebackground=self.scrollbar_active_color,
+            width=12,
+            relief=tk.FLAT
+        )
+
+
+
+        self.text = tk.Text(
+            self.editor_frame,
             undo=True,
             autoseparators=True,
             maxundo=-1,
@@ -64,7 +102,22 @@ class SimpleTextEditor:
             fg=self.text_fg_color,
             insertbackground=self.text_fg_color
         )
-        self.text.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        
+
+        # Link scrollbar and text
+        self.scrollbar.config(command=self.text.yview)
+        self.text.config(yscrollcommand=self.scrollbar.set)
+
+        self.scrollbar.pack(
+            side=tk.RIGHT,
+            fill=tk.Y
+        )
+
+        self.text.pack(
+            side=tk.LEFT,
+            fill=tk.BOTH,
+            expand=True
+        )
         
         # Status Bar
         self.status = tk.StringVar()
@@ -110,12 +163,18 @@ class SimpleTextEditor:
             self.text_fg_color = self.text_fg_light
             self.menu_bg_color = self.menu_bg_light
             self.menu_fg_color = self.menu_fg_light
+            self.scrollbar_bg_color = self.scrollbar_bg_light
+            self.scrollbar_trough_color = self.scrollbar_trough_light
+            self.scrollbar_active_color = self.scrollbar_active_light
         else:
             self.root_bg_color =  self.root_bg_dark
             self.text_bg_color = self.text_bg_dark
             self.text_fg_color = self.text_fg_dark
             self.menu_bg_color = self.menu_bg_dark
             self.menu_fg_color = self.menu_fg_dark
+            self.scrollbar_bg_color = self.scrollbar_bg_dark
+            self.scrollbar_trough_color = self.scrollbar_trough_dark
+            self.scrollbar_active_color = self.scrollbar_active_dark
         # Root
         self.root.config(bg=self.root_bg_color)
 
@@ -124,6 +183,13 @@ class SimpleTextEditor:
             bg=self.text_bg_color,
             fg=self.text_fg_color,
             insertbackground=self.text_fg_color
+        )
+        
+        # Scrollbar
+        self.scrollbar.config(
+            bg=self.scrollbar_bg_color,
+            troughcolor=self.scrollbar_trough_color,
+            activebackground=self.scrollbar_active_color
         )
 
         # Statusbar
@@ -165,7 +231,6 @@ class SimpleTextEditor:
         self.text.bind("<Control-v>", self.paste_text)
         self.text.bind("<Control-y>", self.redo)
         self.text.bind("<Key>", self._on_key)
-        self.root.bind("<Control-w>",sys.exit)
 
     def _on_key(self, event=None):
         if event.keysym in ("space", "Return", "BackSpace", "Delete"):
@@ -206,35 +271,50 @@ class SimpleTextEditor:
 
         return "break"
 
-    import subprocess
 
     def copy_text(self, event=None):
         try:
             selection = self.text.get("sel.first", "sel.last")
-            if selection:
+
+            if not selection:
+                return "break"
+
+            if shutil.which("wl-copy"):
                 subprocess.run(
                     ["wl-copy"],
                     input=selection,
                     text=True,
                     check=False
                 )
+
+            elif shutil.which("xclip"):
+                subprocess.run(
+                    ["xclip", "-selection", "clipboard"],
+                    input=selection,
+                    text=True,
+                    check=False
+                )
+
+            else:
+                self.root.clipboard_clear()
+                self.root.clipboard_append(selection)
+                self.root.update()
+
         except tk.TclError:
             pass
+
         return "break"
 
     def cut_text(self, event=None):
         try:
-            selection = self.text.get("sel.first", "sel.last")
-            if selection:
-                subprocess.run(
-                    ["wl-copy"],
-                    input=selection,
-                    text=True,
-                    check=False
-                )
+            self.copy_text()
+
+            if self.text.tag_ranges("sel"):
                 self.text.delete("sel.first", "sel.last")
+
         except tk.TclError:
             pass
+
         return "break"
 
     def paste_text(self, event=None):
@@ -249,6 +329,7 @@ class SimpleTextEditor:
 
     def _set_status(self, text):
         self.status.set(text)
+
 
     def new_file(self):
         if self._ask_save_if_modified():
