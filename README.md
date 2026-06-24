@@ -5,7 +5,7 @@ A simple text editor written in Python for editing plain text files like .txt an
 ## Installation
 
 ```bash
-sudo apt install ./simpletexteditor
+sudo apt install ./simpletexteditor.deb
 ```
 
 ## Usage
