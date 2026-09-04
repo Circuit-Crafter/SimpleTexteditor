@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-# Version: 1.3
-# Last Updated: 2026-06-24
+# Version: 1.4
+# Last Updated: 2026-09-04
 """Very simple text editor with Tkinter and Dark Mode."""
 
 import tkinter as tk
@@ -15,42 +15,7 @@ import tkinter.font as tkfont
 class SimpleTextEditor:
     def __init__(self, root):
         self.root = root
-
-        self.search_window = None
-        self.dark_mode = True
-        
-        # Dark Mode Colors
-        self.root_bg_dark = "#1e1e1e"
-        self.text_bg_dark = "#212121"
-        self.text_fg_dark = "#f1f1f1"
-        self.menu_bg_dark = "#242424"
-        self.menu_fg_dark = "#e0e0e0"
-        # Light Mode Colors
-        self.root_bg_light = "#e0e0e0"
-        self.text_bg_light = "#ffffff"
-        self.text_fg_light = "#1e1e1e"
-        self.menu_bg_light = "#f0f0f0"
-        self.menu_fg_light = "#1e1e1e"
-        
-        # Scrollbar Colors (Dark Mode)
-        self.scrollbar_bg_dark = "#2a2a2a"
-        self.scrollbar_trough_dark = "#1e1e1e"
-        self.scrollbar_active_dark = "#444444"
-        
-        # Scrollbar Colors (Light Mode)
-        self.scrollbar_bg_light = "#d0d0d0"
-        self.scrollbar_trough_light = "#f5f5f5"
-        self.scrollbar_active_light = "#b0b0b0"
-
-        # Colors
-        self.root_bg_color =  self.root_bg_dark
-        self.text_bg_color = self.text_bg_dark
-        self.text_fg_color = self.text_fg_dark
-        self.menu_bg_color = self.menu_bg_dark
-        self.menu_fg_color = self.menu_fg_dark
-        self.scrollbar_bg_color = self.scrollbar_bg_dark
-        self.scrollbar_trough_color = self.scrollbar_trough_dark
-        self.scrollbar_active_color = self.scrollbar_active_dark
+        self._setup_view_values()
 
         # Icon
         icon_path = self._get_icon_path()
@@ -89,6 +54,16 @@ class SimpleTextEditor:
             width=12,
             relief=tk.FLAT
         )
+        self.h_scrollbar = tk.Scrollbar(
+        self.editor_frame,
+        orient=tk.HORIZONTAL,
+        bg=self.scrollbar_bg_color,
+        troughcolor=self.scrollbar_trough_color,
+        activebackground=self.scrollbar_active_color,
+        width=12,
+        relief=tk.FLAT
+    )
+
 
 
 
@@ -97,7 +72,9 @@ class SimpleTextEditor:
             undo=True,
             autoseparators=True,
             maxundo=-1,
-            wrap="word",
+            wrap="none",
+            height=1,
+            font=self.editor_font,
             bg=self.text_bg_color,
             fg=self.text_fg_color,
             insertbackground=self.text_fg_color
@@ -106,11 +83,21 @@ class SimpleTextEditor:
 
         # Link scrollbar and text
         self.scrollbar.config(command=self.text.yview)
-        self.text.config(yscrollcommand=self.scrollbar.set)
+        self.h_scrollbar.config(command=self.text.xview)
+
+        self.text.config(
+            yscrollcommand=self.scrollbar.set,
+            xscrollcommand=self.h_scrollbar.set
+        )
+
 
         self.scrollbar.pack(
             side=tk.RIGHT,
             fill=tk.Y
+        )
+        self.h_scrollbar.pack(
+            side=tk.BOTTOM,
+            fill=tk.X
         )
 
         self.text.pack(
@@ -209,7 +196,51 @@ class SimpleTextEditor:
         
 
 
+    def _setup_view_values(self):
+        self.dark_mode = True
+        
+        # Dark Mode Colors
+        self.root_bg_dark = "#1e1e1e"
+        self.text_bg_dark = "#212121"
+        self.text_fg_dark = "#f1f1f1"
+        self.menu_bg_dark = "#242424"
+        self.menu_fg_dark = "#e0e0e0"
+        # Light Mode Colors
+        self.root_bg_light = "#e0e0e0"
+        self.text_bg_light = "#ffffff"
+        self.text_fg_light = "#1e1e1e"
+        self.menu_bg_light = "#f0f0f0"
+        self.menu_fg_light = "#1e1e1e"
+        
+        # Scrollbar Colors (Dark Mode)
+        self.scrollbar_bg_dark = "#2a2a2a"
+        self.scrollbar_trough_dark = "#1e1e1e"
+        self.scrollbar_active_dark = "#444444"
+        
+        # Scrollbar Colors (Light Mode)
+        self.scrollbar_bg_light = "#d0d0d0"
+        self.scrollbar_trough_light = "#f5f5f5"
+        self.scrollbar_active_light = "#b0b0b0"
 
+        # Colors
+        self.root_bg_color =  self.root_bg_dark
+        self.text_bg_color = self.text_bg_dark
+        self.text_fg_color = self.text_fg_dark
+        self.menu_bg_color = self.menu_bg_dark
+        self.menu_fg_color = self.menu_fg_dark
+        self.scrollbar_bg_color = self.scrollbar_bg_dark
+        self.scrollbar_trough_color = self.scrollbar_trough_dark
+        self.scrollbar_active_color = self.scrollbar_active_dark
+        
+        #Font
+        self.font_family = "TkFixedFont"
+        self.font_size = 12
+        self.min_font_size = 8
+        self.max_font_size = 48
+        self.editor_font = tkfont.Font(
+            family=self.font_family,
+            size=self.font_size
+        )
     def _create_view_menu(self):
 
         self.view_menu = tk.Menu(self.menu_bar, tearoff=0, bg=self.menu_bg_color, fg=self.menu_fg_color)
@@ -231,6 +262,16 @@ class SimpleTextEditor:
         self.text.bind("<Control-v>", self.paste_text)
         self.text.bind("<Control-y>", self.redo)
         self.text.bind("<Key>", self._on_key)
+        
+        
+        #Zoom keys
+        self.text.bind("<Control-MouseWheel>", self.zoom_mousewheel)
+        # for Linux mouse wheel
+        self.text.bind("<Control-Button-4>", self.zoom_in)
+        self.text.bind("<Control-Button-5>", self.zoom_out)
+        # for Keyboard zoom
+        self.text.bind("<Control-KeyPress>", self.zoom_keyboard)
+
 
     def _on_key(self, event=None):
         if event.keysym in ("space", "Return", "BackSpace", "Delete"):
@@ -394,6 +435,85 @@ class SimpleTextEditor:
     def exit_editor(self):
         if self._ask_save_if_modified():
             self.root.destroy()
+
+
+    #Zoom related funktions
+    def _update_zoom_status(self):
+        zoom_percent = round((self.font_size / 12) * 100)
+
+        if self.filename:
+            self._set_status(
+                f"{self.filename} — Zoom: {zoom_percent}%"
+            )
+        else:
+            self._set_status(
+                f"New Document — Zoom: {zoom_percent}%"
+            )
+    def zoom_in(self, event=None):
+        if self.font_size < self.max_font_size:
+            self.font_size += 1
+            self.editor_font.configure(size=self.font_size)
+            self._update_zoom_status()
+
+        return "break"
+    def zoom_out(self, event=None):
+        if self.font_size > self.min_font_size:
+            self.font_size -= 1
+            self.editor_font.configure(size=self.font_size)
+            self._update_zoom_status()
+
+        return "break"
+    def reset_zoom(self, event=None):
+        self.font_size = 12
+        self.editor_font.configure(size=self.font_size)
+        self._update_zoom_status()
+
+        return "break"
+    def _update_zoom_status(self):
+        zoom_percent = round((self.font_size / 12) * 100)
+
+        if self.filename:
+            self._set_status(
+                f"{self.filename} — Zoom: {zoom_percent}%"
+            )
+        else:
+            self._set_status(
+                f"New Document — Zoom: {zoom_percent}%"
+            )
+    def zoom_mousewheel(self, event):
+        if event.delta > 0:
+            self.zoom_in()
+        elif event.delta < 0:
+            self.zoom_out()
+
+        return "break"
+    def zoom_keyboard(self, event):
+        """
+        Handles Ctrl + / Ctrl - / Ctrl 0 independently
+        of the keyboard layout.
+        """
+
+        # Ctrl + 0 -> reset
+        if event.keysym == "0":
+            return self.reset_zoom()
+
+        # Ctrl + minus
+        if event.keysym in (
+            "minus",
+            "underscore",
+            "KP_Subtract"
+        ):
+            return self.zoom_out()
+
+        # Ctrl + plus
+        if event.keysym in (
+            "plus",
+            "equal",
+            "KP_Add"
+        ):
+            return self.zoom_in()
+
+        return None
 
 
 if __name__ == "__main__":
