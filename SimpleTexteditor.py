@@ -79,6 +79,8 @@ class SimpleTextEditor:
             fg=self.text_fg_color,
             insertbackground=self.text_fg_color
         )
+        #Configure search highlight tag
+        self.text.tag_configure("search_match",background="#ffff00",foreground="#000000")
         
 
         # Link scrollbar and text
@@ -271,6 +273,7 @@ class SimpleTextEditor:
         self.text.bind("<Control-Button-5>", self.zoom_out)
         # for Keyboard zoom
         self.text.bind("<Control-KeyPress>", self.zoom_keyboard)
+        self.root.bind("<Control-f>", self.open_search)
 
 
     def _on_key(self, event=None):
@@ -516,6 +519,208 @@ class SimpleTextEditor:
         return None
 
 
+
+
+
+
+
+    #Search window system
+    def open_search(self, event=None):
+        #Check for existing search window
+        if hasattr(self, "search_window") and self.search_window.winfo_exists():
+            self.search_window.focus_force()
+            self.search_entry.focus_set()
+            return "break"
+        #Create search window
+        self.search_window = tk.Toplevel(self.root)
+        self.search_window.title("Search")
+        self.search_window.geometry("430x120")
+        self.search_window.resizable(False, False)
+
+        self.search_window.config(bg=self.menu_bg_color)
+
+        tk.Label(
+            self.search_window,
+            text="Search:",
+            bg=self.menu_bg_color,
+            fg=self.menu_fg_color
+        ).pack(padx=10, pady=(10, 2), anchor="w")
+
+        self.search_entry = tk.Entry(
+            self.search_window,
+            bg=self.text_bg_color,
+            fg=self.text_fg_color,
+            insertbackground=self.text_fg_color
+        )
+        self.search_entry.pack(
+            padx=10,
+            pady=(0, 10),
+            fill=tk.X
+        )
+        #Options
+        options_frame = tk.Frame(
+        self.search_window,
+        bg=self.menu_bg_color)
+    
+        options_frame.pack(fill=tk.X, padx=10)
+
+        self.case_sensitive = tk.BooleanVar(value=False)
+
+        #toggle for case sensitvity
+        tk.Checkbutton(
+            options_frame,
+            text="Case sensitive",
+            variable=self.case_sensitive,
+            command=self.search_text,
+            bg=self.menu_bg_color,
+            fg=self.menu_fg_color,
+            selectcolor=self.text_bg_color,
+            activebackground=self.menu_bg_color,
+            activeforeground=self.menu_fg_color
+        ).pack(side=tk.LEFT)
+        #Previous result 
+        tk.Button(
+            options_frame,
+            text="Previous",
+            command=self.search_previous,
+            width=10
+        ).pack(side=tk.RIGHT, padx=(5, 0))
+        #Next result
+        tk.Button(
+            options_frame,
+            text="Next",
+            command=self.search_next,
+            width=10
+        ).pack(side=tk.RIGHT)
+
+        self.search_entry.bind("<KeyRelease>", self.search_text)
+        self.search_entry.bind("<Return>", self.search_next)
+        self.search_window.bind("<Escape>", self.close_search)
+
+        self.search_window.protocol(
+            "WM_DELETE_WINDOW",
+            self.close_search
+        )
+
+        self.search_entry.focus_set()
+
+        return "break"
+
+    def search_text(self, event=None):
+        search_term = self.search_entry.get()
+
+        # Remove old tags
+        self.text.tag_remove("search_match", "1.0", tk.END)
+
+        if not search_term:
+            return
+
+        start = "1.0"
+
+        while True:
+            position = self.text.search(
+                search_term,
+                start,
+                stopindex=tk.END,
+                nocase=not self.case_sensitive.get()
+            )
+
+            if not position:
+                break
+
+            end = f"{position}+{len(search_term)}c"
+
+            self.text.tag_add(
+                "search_match",
+                position,
+                end
+            )
+
+            start = end
+
+
+    def search_next(self, event=None):
+        search_term = self.search_entry.get()
+
+        if not search_term:
+            return "break"
+
+        start = self.text.index(tk.INSERT)
+
+        position = self.text.search(
+            search_term,
+            start,
+            stopindex=tk.END,
+            nocase=not self.case_sensitive.get()
+        )
+
+        # Return to start when bottom is reached
+        if not position:
+            position = self.text.search(
+                search_term,
+                "1.0",
+                stopindex=tk.END,
+                nocase=not self.case_sensitive.get()
+            )
+
+        if position:
+            end = f"{position}+{len(search_term)}c"
+
+            self.text.mark_set("insert", end)
+            self.text.see(position)
+
+            self.text.tag_remove("sel", "1.0", tk.END)
+            self.text.tag_add("sel", position, end)
+
+        return "break"
+    def search_previous(self, event=None):
+        search_term = self.search_entry.get()
+
+        if not search_term:
+            return "break"
+
+        start = self.text.index(tk.INSERT)
+
+        position = self.text.search(
+            search_term,
+            start,
+            stopindex="1.0",
+            backwards=True,
+            nocase=not self.case_sensitive.get()
+        )
+
+        # When start is reached return to end
+        if not position:
+            position = self.text.search(
+                search_term,
+                tk.END,
+                stopindex="1.0",
+                backwards=True,
+                nocase=not self.case_sensitive.get()
+            )
+
+        if position:
+            end = f"{position}+{len(search_term)}c"
+
+            self.text.mark_set("insert", position)
+            self.text.see(position)
+
+            self.text.tag_remove("sel", "1.0", tk.END)
+            self.text.tag_add("sel", position, end)
+
+        return "break"
+
+
+
+    def close_search(self, event=None):
+        self.text.tag_remove("search_match", "1.0", tk.END)
+
+        if hasattr(self, "search_window") and self.search_window.winfo_exists():
+            self.search_window.destroy()
+
+        self.text.focus_set()
+
+        return "break"
 if __name__ == "__main__":
     root = tk.Tk()
     app = SimpleTextEditor(root)
