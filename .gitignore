@@ -2,3 +2,4 @@ simpletexteditor/
 simpletexteditor.spec
 dist/
 build/
+.venv/

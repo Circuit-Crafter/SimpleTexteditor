@@ -1,5 +1,7 @@
 # SimpleTexteditor
 
+**This is the experimental development branch**
+
 A simple text editor written in Python for editing plain text files like .txt and .md.
 
 ## Installation

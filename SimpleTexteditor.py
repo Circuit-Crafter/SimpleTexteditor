@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Version: 1.4
+# Version: 1.4-0
 # Last Updated: 2026-09-04
 """Very simple text editor with Tkinter and Dark Mode."""
 
