@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-# Version: 1.4-0
-# Last Updated: 2026-09-04
+# Version: 1.4-1
+# Last Updated: 2026-09-05
 """Very simple text editor with Tkinter and Dark Mode."""
 
 import tkinter as tk

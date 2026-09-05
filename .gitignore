@@ -3,3 +3,5 @@ simpletexteditor.spec
 dist/
 build/
 .venv/
+package.sh
+updateversion.sh
